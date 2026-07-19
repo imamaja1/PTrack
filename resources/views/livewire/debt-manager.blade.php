@@ -5,7 +5,6 @@ use Livewire\WithPagination;
 use App\Services\LoanService;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
-use Flux\Flux;
 
 new #[Layout('layouts.app')] class extends Component {
     use WithPagination;
@@ -62,13 +61,13 @@ new #[Layout('layouts.app')] class extends Component {
         ]);
 
         $this->modalOpen = false;
-        Flux::toast('Hutang berhasil dicatat.');
+        session()->flash('status', 'Hutang berhasil dicatat.');
     }
 
     public function toggleStatus(int $id): void
     {
         $this->loanService->toggleStatus($id, auth()->id(), 'borrowed');
-        Flux::toast('Status hutang berhasil diubah.');
+        session()->flash('status', 'Status hutang berhasil diubah.');
     }
 
     public function editLoan(int $id): void
@@ -103,7 +102,7 @@ new #[Layout('layouts.app')] class extends Component {
             'description'          => $this->description,
         ]);
 
-        Flux::toast('Data hutang berhasil diperbarui.');
+        session()->flash('status', 'Data hutang berhasil diperbarui.');
         $this->editModalOpen = false;
         $this->editLoanId    = null;
     }
@@ -119,7 +118,7 @@ new #[Layout('layouts.app')] class extends Component {
         if (!$this->loanToDelete) return;
 
         $this->loanService->delete($this->loanToDelete, auth()->id(), 'borrowed');
-        Flux::toast('Hutang berhasil dihapus.', variant: 'danger');
+        session()->flash('status', 'Hutang berhasil dihapus.', variant: 'danger');
 
         $this->deleteModalOpen = false;
         $this->loanToDelete    = null;
@@ -136,45 +135,45 @@ new #[Layout('layouts.app')] class extends Component {
 
 <div>
     <x-slot name="header">
-        <flux:heading size="xl" level="1">Hutang (Kewajiban)</flux:heading>
+        <h1 class="text-xl font-bold tracking-tight">Hutang (Kewajiban)</h1>
     </x-slot>
 
     <div class="space-y-6">
         <div class="flex justify-end">
-            <flux:button variant="danger" icon="plus" wire:click="openModal">Catat Hutang Baru</flux:button>
+            <x-ui.button variant="destructive" icon="plus" wire:click="openModal">Catat Hutang Baru</x-ui.button>
         </div>
         <!-- Summary Card -->
-        <flux:card class="bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900">
+        <x-ui.card class="bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900"><x-ui.card-content class="pt-6">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-red-100 dark:bg-red-800 rounded-lg text-red-600 dark:text-red-300">
-                    <flux:icon.banknotes variant="solid" />
+                    
                 </div>
                 <div>
-                    <flux:heading size="md" class="text-red-900 dark:text-red-100">Total Hutang Anda (Belum Lunas)</flux:heading>
-                    <flux:heading size="2xl" class="text-red-600 dark:text-red-400 mt-1">
+                    <h1 class="text-xl font-bold tracking-tight">Total Hutang Anda (Belum Lunas)</h1>
+                    <h2 class="text-2xl font-bold tracking-tight text-red-600 dark:text-red-400 mt-1">
                         Rp {{ number_format($totalUnpaid, 0, ',', '.') }}
-                    </flux:heading>
+                    </h2>
                 </div>
             </div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
 
-        <flux:card>
-            <flux:table>
-                <flux:table.columns>
-                    <flux:table.column>Dihutangi Kepada</flux:table.column>
-                    <flux:table.column>Tgl Pinjam</flux:table.column>
-                    <flux:table.column>Jatuh Tempo</flux:table.column>
-                    <flux:table.column class="text-right">Nominal</flux:table.column>
-                    <flux:table.column align="center">Status</flux:table.column>
-                    <flux:table.column align="center">Aksi</flux:table.column>
-                </flux:table.columns>
+        <x-ui.card><x-ui.card-content class="pt-6">
+            <x-ui.table>
+                <x-ui.table-header><x-ui.table-row>
+                    <x-ui.table-head>Dihutangi Kepada</x-ui.table-head>
+                    <x-ui.table-head>Tgl Pinjam</x-ui.table-head>
+                    <x-ui.table-head>Jatuh Tempo</x-ui.table-head>
+                    <x-ui.table-head class="text-right">Nominal</x-ui.table-head>
+                    <x-ui.table-head align="center">Status</x-ui.table-head>
+                    <x-ui.table-head align="center">Aksi</x-ui.table-head>
+                </x-ui.table-row></x-ui.table-header>
                 
-                <flux:table.rows>
+                <x-ui.table-body>
                     @forelse ($loans as $loan)
-                        <flux:table.row>
-                            <flux:table.cell class="font-medium text-zinc-900 dark:text-white">{{ $loan->borrower_name }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-500">{{ $loan->loan_date->format('d M Y') }}</flux:table.cell>
-                            <flux:table.cell>
+                        <x-ui.table-row>
+                            <x-ui.table-cell class="font-medium text-zinc-900 dark:text-white">{{ $loan->borrower_name }}</x-ui.table-cell>
+                            <x-ui.table-cell class="text-zinc-500">{{ $loan->loan_date->format('d M Y') }}</x-ui.table-cell>
+                            <x-ui.table-cell>
                                 @if($loan->expected_return_date)
                                     @php
                                         $isOverdue = $loan->status === 'unpaid' && $loan->expected_return_date->isPast();
@@ -186,171 +185,171 @@ new #[Layout('layouts.app')] class extends Component {
                                 @else
                                     <span class="text-zinc-400">-</span>
                                 @endif
-                            </flux:table.cell>
-                            <flux:table.cell class="text-right font-medium text-red-600 dark:text-red-400">
+                            </x-ui.table-cell>
+                            <x-ui.table-cell class="text-right font-medium text-red-600 dark:text-red-400">
                                 Rp {{ number_format($loan->amount, 0, ',', '.') }}
-                            </flux:table.cell>
-                            <flux:table.cell align="center">
+                            </x-ui.table-cell>
+                            <x-ui.table-cell align="center">
                                 @if($loan->status === 'paid')
-                                    <flux:badge class="bg-emerald-500 text-white border-0">Lunas</flux:badge>
+                                    <x-ui.badge class="bg-emerald-500 text-white border-0">Lunas</x-ui.badge>
                                 @else
-                                    <flux:badge class="bg-red-500 text-white border-0">Belum Lunas</flux:badge>
+                                    <x-ui.badge class="bg-red-500 text-white border-0">Belum Lunas</x-ui.badge>
                                 @endif
-                            </flux:table.cell>
-                            <flux:table.cell align="center">
-                                <flux:dropdown>
-                                    <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" />
+                            </x-ui.table-cell>
+                            <x-ui.table-cell align="center">
+                                <x-ui.dropdown width="48">
+                                    <x-ui.button variant="ghost" size="sm" icon="ellipsis-vertical" />
                                     
-                                    <flux:menu>
-                                        <flux:menu.item wire:click="editLoan({{ $loan->id }})" icon="pencil">
+                                    <x-slot name="trigger"><button class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg></button></x-slot><x-slot name="content">
+                                        <x-ui.dropdown-item wire:click="editLoan({{ $loan->id }})" icon="pencil">
                                             Edit
-                                        </flux:menu.item>
-                                        <flux:menu.item wire:click="toggleStatus({{ $loan->id }})" icon="{{ $loan->status === 'paid' ? 'x-circle' : 'check-circle' }}">
+                                        </x-ui.dropdown-item>
+                                        <x-ui.dropdown-item wire:click="toggleStatus({{ $loan->id }})" icon="{{ $loan->status === 'paid' ? 'x-circle' : 'check-circle' }}">
                                             Tandai {{ $loan->status === 'paid' ? 'Belum Lunas' : 'Lunas' }}
-                                        </flux:menu.item>
-                                        <flux:menu.separator />
-                                        <flux:menu.item variant="danger" wire:click="confirmDelete({{ $loan->id }})" icon="trash">
+                                        </x-ui.dropdown-item>
+                                        <div class="h-px bg-muted my-1"></div>
+                                        <x-ui.dropdown-item variant="destructive" wire:click="confirmDelete({{ $loan->id }})" icon="trash">
                                             Hapus
-                                        </flux:menu.item>
-                                    </flux:menu>
-                                </flux:dropdown>
-                            </flux:table.cell>
-                        </flux:table.row>
+                                        </x-ui.dropdown-item>
+                                    </x-slot>
+                                </x-ui.dropdown>
+                            </x-ui.table-cell>
+                        </x-ui.table-row>
                     @empty
-                        <flux:table.row>
-                            <flux:table.cell colspan="6" class="text-center py-8 text-zinc-500">
+                        <x-ui.table-row>
+                            <x-ui.table-cell colspan="6" class="text-center py-8 text-zinc-500">
                                 Tidak ada data hutang.
-                            </flux:table.cell>
-                        </flux:table.row>
+                            </x-ui.table-cell>
+                        </x-ui.table-row>
                     @endforelse
-                </flux:table.rows>
-            </flux:table>
+                </x-ui.table-body>
+            </x-ui.table>
             
             <div class="mt-4">
                 {{ $loans->links() }}
             </div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
     </div>
 
     <!-- Modal Form -->
-    <flux:modal name="create-debt" wire:model="modalOpen" class="md:w-[500px]">
+    <x-ui.modal name="create-debt" wire:model="modalOpen" class="md:w-[500px]">
         <form wire:submit="save" class="space-y-6">
             <div>
-                <flux:heading size="lg">Catat Hutang Baru</flux:heading>
-                <flux:subheading>Masukkan data saat Anda meminjam uang dari orang lain.</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Catat Hutang Baru</h1>
+                <p class="text-sm text-muted-foreground">Masukkan data saat Anda meminjam uang dari orang lain.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <flux:field>
-                        <flux:label>Nama Pemberi Pinjaman</flux:label>
-                        <flux:input type="text" wire:model="borrower_name" placeholder="Contoh: Budi / Bank Jago" />
-                        <flux:error name="borrower_name" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Nama Pemberi Pinjaman</x-ui.label>
+                        <x-ui.input type="text" wire:model="borrower_name" placeholder="Contoh: Budi / Bank Jago" />
+                        @error("borrower_name") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-2">
-                    <flux:field>
-                        <flux:label>Nominal (Rp)</flux:label>
-                        <flux:input type="number" wire:model="amount" placeholder="Contoh: 1000000" />
-                        <flux:error name="amount" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Nominal (Rp)</x-ui.label>
+                        <x-ui.input type="number" wire:model="amount" placeholder="Contoh: 1000000" />
+                        @error("amount") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-1">
-                    <flux:field>
-                        <flux:label>Tgl Pinjam</flux:label>
-                        <flux:input type="date" wire:model="loan_date" />
-                        <flux:error name="loan_date" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Tgl Pinjam</x-ui.label>
+                        <x-ui.input type="date" wire:model="loan_date" />
+                        @error("loan_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-1">
-                    <flux:field>
-                        <flux:label>Jatuh Tempo (Opsional)</flux:label>
-                        <flux:input type="date" wire:model="expected_return_date" />
-                        <flux:error name="expected_return_date" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Jatuh Tempo (Opsional)</x-ui.label>
+                        <x-ui.input type="date" wire:model="expected_return_date" />
+                        @error("expected_return_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('modalOpen', false)">Batal</flux:button>
-                <flux:button type="submit" variant="danger">Simpan Hutang</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('modalOpen', false)">Batal</x-ui.button>
+                <x-ui.button type="submit" variant="destructive">Simpan Hutang</x-ui.button>
             </div>
         </form>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Konfirmasi Hapus -->
-    <flux:modal name="delete-debt" wire:model="deleteModalOpen" class="md:w-[400px]">
+    <x-ui.modal name="delete-debt" wire:model="deleteModalOpen" class="md:w-[400px]">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Konfirmasi Hapus</flux:heading>
-                <flux:subheading>Apakah Anda yakin ingin menghapus data hutang ini?</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Konfirmasi Hapus</h1>
+                <p class="text-sm text-muted-foreground">Apakah Anda yakin ingin menghapus data hutang ini?</p>
             </div>
             
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('deleteModalOpen', false)">Batal</flux:button>
-                <flux:button variant="danger" wire:click="delete">Ya, Hapus</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('deleteModalOpen', false)">Batal</x-ui.button>
+                <x-ui.button variant="destructive" wire:click="delete">Ya, Hapus</x-ui.button>
             </div>
         </div>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Edit Hutang -->
-    <flux:modal name="edit-debt" wire:model="editModalOpen" class="md:w-[500px]">
+    <x-ui.modal name="edit-debt" wire:model="editModalOpen" class="md:w-[500px]">
         <form wire:submit="updateLoan" class="space-y-6">
             <div>
-                <flux:heading size="lg">Edit Hutang</flux:heading>
-                <flux:subheading>Perbarui data catatan hutang.</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Edit Hutang</h1>
+                <p class="text-sm text-muted-foreground">Perbarui data catatan hutang.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <flux:field>
-                        <flux:label>Nama Pemberi Hutang / Kreditur</flux:label>
-                        <flux:input type="text" wire:model="borrower_name" />
-                        <flux:error name="borrower_name" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Nama Pemberi Hutang / Kreditur</x-ui.label>
+                        <x-ui.input type="text" wire:model="borrower_name" />
+                        @error("borrower_name") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-2">
-                    <flux:field>
-                        <flux:label>Nominal (Rp)</flux:label>
-                        <flux:input type="number" wire:model="amount" />
-                        <flux:error name="amount" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Nominal (Rp)</x-ui.label>
+                        <x-ui.input type="number" wire:model="amount" />
+                        @error("amount") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-1">
-                    <flux:field>
-                        <flux:label>Tgl Hutang</flux:label>
-                        <flux:input type="date" wire:model="loan_date" />
-                        <flux:error name="loan_date" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Tgl Hutang</x-ui.label>
+                        <x-ui.input type="date" wire:model="loan_date" />
+                        @error("loan_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="col-span-1">
-                    <flux:field>
-                        <flux:label>Jatuh Tempo (Opsional)</flux:label>
-                        <flux:input type="date" wire:model="expected_return_date" />
-                        <flux:error name="expected_return_date" />
-                    </flux:field>
+                    <div class="space-y-2">
+                        <x-ui.label>Jatuh Tempo (Opsional)</x-ui.label>
+                        <x-ui.input type="date" wire:model="expected_return_date" />
+                        @error("expected_return_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 
-            <flux:field>
-                <flux:label>Catatan</flux:label>
-                <flux:input type="text" wire:model="description" />
-                <flux:error name="description" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Catatan</x-ui.label>
+                <x-ui.input type="text" wire:model="description" />
+                @error("description") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('editModalOpen', false)">Batal</flux:button>
-                <flux:button type="submit" variant="primary">Simpan Perubahan</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('editModalOpen', false)">Batal</x-ui.button>
+                <x-ui.button type="submit" variant="default">Simpan Perubahan</x-ui.button>
             </div>
         </form>
-    </flux:modal>
+    </x-ui.modal>
 </div>

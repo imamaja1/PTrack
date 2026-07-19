@@ -15,7 +15,6 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @fluxAppearance
 
         <style>
             * { font-family: 'Inter', sans-serif; }
@@ -76,11 +75,6 @@
                 flex: 1;
                 height: 1px;
                 background: #e5e7eb;
-            }
-
-            /* Override flux inputs for auth pages */
-            [data-flux-input] {
-                border-radius: 10px !important;
             }
         </style>
     </head>
@@ -195,7 +189,5 @@
                 </div>
             </div>
         </div>
-
-        @fluxScripts
     </body>
 </html>

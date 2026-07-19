@@ -7,7 +7,6 @@ use App\Services\CategoryService;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
-use Flux\Flux;
 
 new #[Layout('layouts.app')] class extends Component {
     use WithPagination;
@@ -68,7 +67,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->category_id = $cat->id;
         $this->reset(['newCategoryName', 'newCategoryModal']);
-        Flux::toast('Kategori berhasil ditambahkan.');
+        session()->flash('status', 'Kategori berhasil ditambahkan.');
     }
 
     public function save(): void
@@ -89,7 +88,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->modalOpen = false;
         $this->dispatch('transaction-updated');
-        Flux::toast('Pemasukan berhasil dicatat.');
+        session()->flash('status', 'Pemasukan berhasil dicatat.');
     }
 
     public function editTransaction(int $id): void
@@ -123,7 +122,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         if ($updated) {
             $this->dispatch('transaction-updated');
-            Flux::toast('Pemasukan berhasil diperbarui.');
+            session()->flash('status', 'Pemasukan berhasil diperbarui.');
         }
 
         $this->editModalOpen     = false;
@@ -143,7 +142,7 @@ new #[Layout('layouts.app')] class extends Component {
         $deleted = $this->transactionService->delete($this->transactionToDelete, auth()->id());
         if ($deleted) {
             $this->dispatch('transaction-updated');
-            Flux::toast('Pemasukan berhasil dihapus.', variant: 'danger');
+            session()->flash('status', 'Pemasukan berhasil dihapus.', variant: 'danger');
         }
 
         $this->deleteModalOpen     = false;
@@ -161,39 +160,39 @@ new #[Layout('layouts.app')] class extends Component {
 
 <div>
     <x-slot name="header">
-        <flux:heading size="xl" level="1">Pemasukan</flux:heading>
+        <h1 class="text-xl font-bold tracking-tight">Pemasukan</h1>
     </x-slot>
 
     <div class="space-y-6">
         <div class="flex justify-end">
-            <flux:button variant="primary" icon="plus" wire:click="openModal">Catat Pemasukan</flux:button>
+            <x-ui.button variant="default" icon="plus" wire:click="openModal">Catat Pemasukan</x-ui.button>
         </div>
-        <flux:card>
-            <flux:table>
-                <flux:table.columns>
-                    <flux:table.column>Tanggal</flux:table.column>
-                    <flux:table.column>Kategori</flux:table.column>
-                    <flux:table.column>Keterangan</flux:table.column>
-                    <flux:table.column class="text-right">Nominal</flux:table.column>
-                    <flux:table.column align="center">Aksi</flux:table.column>
-                </flux:table.columns>
+        <x-ui.card><x-ui.card-content class="pt-6">
+            <x-ui.table>
+                <x-ui.table-header><x-ui.table-row>
+                    <x-ui.table-head>Tanggal</x-ui.table-head>
+                    <x-ui.table-head>Kategori</x-ui.table-head>
+                    <x-ui.table-head>Keterangan</x-ui.table-head>
+                    <x-ui.table-head class="text-right">Nominal</x-ui.table-head>
+                    <x-ui.table-head align="center">Aksi</x-ui.table-head>
+                </x-ui.table-row></x-ui.table-header>
                 
-                <flux:table.rows>
+                <x-ui.table-body>
                     @forelse ($transactions as $tx)
-                        <flux:table.row>
-                            <flux:table.cell>{{ $tx->transaction_date->format('d M Y') }}</flux:table.cell>
-                            <flux:table.cell>
+                        <x-ui.table-row>
+                            <x-ui.table-cell>{{ $tx->transaction_date->format('d M Y') }}</x-ui.table-cell>
+                            <x-ui.table-cell>
                                 @if($tx->category)
-                                    <flux:badge class="{{ $tx->category->color }} text-white border-0">{{ $tx->category->name }}</flux:badge>
+                                    <x-ui.badge class="{{ $tx->category->color }} text-white border-0">{{ $tx->category->name }}</x-ui.badge>
                                 @else
-                                    <flux:badge>Lain-lain</flux:badge>
+                                    <x-ui.badge>Lain-lain</x-ui.badge>
                                 @endif
-                            </flux:table.cell>
-                            <flux:table.cell class="text-zinc-500">{{ $tx->description ?? '-' }}</flux:table.cell>
-                            <flux:table.cell class="text-right font-medium text-emerald-600 dark:text-emerald-400">
+                            </x-ui.table-cell>
+                            <x-ui.table-cell class="text-zinc-500">{{ $tx->description ?? '-' }}</x-ui.table-cell>
+                            <x-ui.table-cell class="text-right font-medium text-emerald-600 dark:text-emerald-400">
                                 + Rp {{ number_format($tx->amount, 0, ',', '.') }}
-                            </flux:table.cell>
-                            <flux:table.cell align="center">
+                            </x-ui.table-cell>
+                            <x-ui.table-cell align="center">
                                 <div class="flex gap-2 justify-center items-center">
                                     <button
                                         wire:click="editTransaction({{ $tx->id }})"
@@ -214,157 +213,157 @@ new #[Layout('layouts.app')] class extends Component {
                                         </svg>
                                     </button>
                                 </div>
-                            </flux:table.cell>
-                        </flux:table.row>
+                            </x-ui.table-cell>
+                        </x-ui.table-row>
                     @empty
-                        <flux:table.row>
-                            <flux:table.cell colspan="5" class="text-center py-8 text-zinc-500">
+                        <x-ui.table-row>
+                            <x-ui.table-cell colspan="5" class="text-center py-8 text-zinc-500">
                                 Belum ada pemasukan.
-                            </flux:table.cell>
-                        </flux:table.row>
+                            </x-ui.table-cell>
+                        </x-ui.table-row>
                     @endforelse
-                </flux:table.rows>
-            </flux:table>
+                </x-ui.table-body>
+            </x-ui.table>
             
             <div class="mt-4">
                 {{ $transactions->links() }}
             </div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
     </div>
 
     <!-- Modal Pemasukan -->
-    <flux:modal name="create-income" wire:model="modalOpen" class="md:w-96">
+    <x-ui.modal name="create-income" wire:model="modalOpen" class="md:w-96">
         <form wire:submit="save" class="space-y-6">
             <div>
-                <flux:heading size="lg">Catat Pemasukan</flux:heading>
+                <h1 class="text-xl font-bold tracking-tight">Catat Pemasukan</h1>
             </div>
 
-            <flux:field>
-                <flux:label>Nominal (Rp)</flux:label>
-                <flux:input type="number" wire:model="amount" placeholder="Contoh: 5000000" />
-                <flux:error name="amount" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Nominal (Rp)</x-ui.label>
+                <x-ui.input type="number" wire:model="amount" placeholder="Contoh: 5000000" />
+                @error("amount") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
             <div class="relative">
-                <flux:field>
-                    <flux:label>Kategori</flux:label>
-                    <flux:select wire:model="category_id">
+                <div class="space-y-2">
+                    <x-ui.label>Kategori</x-ui.label>
+                    <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model="category_id">
                         <option value="">Pilih Kategori...</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:error name="category_id" />
-                </flux:field>
+                    </select>
+                    @error("category_id") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+                </div>
                 <button type="button" wire:click="$set('newCategoryModal', true)" class="absolute -top-1 right-0 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
                     + Kategori Baru
                 </button>
             </div>
 
-            <flux:field>
-                <flux:label>Keterangan</flux:label>
-                <flux:input type="text" wire:model="description" placeholder="Opsional (Gaji, Bonus, dll)" />
-                <flux:error name="description" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Keterangan</x-ui.label>
+                <x-ui.input type="text" wire:model="description" placeholder="Opsional (Gaji, Bonus, dll)" />
+                @error("description") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Tanggal</flux:label>
-                <flux:input type="date" wire:model="transaction_date" />
-                <flux:error name="transaction_date" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Tanggal</x-ui.label>
+                <x-ui.input type="date" wire:model="transaction_date" />
+                @error("transaction_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('modalOpen', false)">Batal</flux:button>
-                <flux:button type="submit" variant="primary">Simpan</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('modalOpen', false)">Batal</x-ui.button>
+                <x-ui.button type="submit" variant="default">Simpan</x-ui.button>
             </div>
         </form>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Kategori Baru (di dalam Pemasukan untuk akses cepat) -->
-    <flux:modal name="create-category-income" wire:model="newCategoryModal" class="md:w-96">
+    <x-ui.modal name="create-category-income" wire:model="newCategoryModal" class="md:w-96">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Tambah Kategori Baru</flux:heading>
+                <h1 class="text-xl font-bold tracking-tight">Tambah Kategori Baru</h1>
             </div>
-            <flux:field>
-                <flux:label>Nama Kategori</flux:label>
-                <flux:input wire:model="newCategoryName" />
-            </flux:field>
-            <flux:field>
-                <flux:label>Warna Label</flux:label>
-                <flux:select wire:model="newCategoryColor">
+            <div class="space-y-2">
+                <x-ui.label>Nama Kategori</x-ui.label>
+                <x-ui.input wire:model="newCategoryName" />
+            </div>
+            <div class="space-y-2">
+                <x-ui.label>Warna Label</x-ui.label>
+                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model="newCategoryColor">
                     <option value="bg-emerald-500">Hijau</option>
                     <option value="bg-blue-500">Biru</option>
                     <option value="bg-indigo-500">Nila</option>
-                </flux:select>
-            </flux:field>
+                </select>
+            </div>
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('newCategoryModal', false)">Batal</flux:button>
-                <flux:button variant="primary" wire:click="saveCategory">Simpan Kategori</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('newCategoryModal', false)">Batal</x-ui.button>
+                <x-ui.button variant="default" wire:click="saveCategory">Simpan Kategori</x-ui.button>
             </div>
         </div>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Konfirmasi Hapus -->
-    <flux:modal name="delete-income" wire:model="deleteModalOpen" class="md:w-[400px]">
+    <x-ui.modal name="delete-income" wire:model="deleteModalOpen" class="md:w-[400px]">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Konfirmasi Hapus</flux:heading>
-                <flux:subheading>Apakah Anda yakin ingin menghapus catatan pemasukan ini?</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Konfirmasi Hapus</h1>
+                <p class="text-sm text-muted-foreground">Apakah Anda yakin ingin menghapus catatan pemasukan ini?</p>
             </div>
             
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('deleteModalOpen', false)">Batal</flux:button>
-                <flux:button variant="danger" wire:click="delete">Ya, Hapus</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('deleteModalOpen', false)">Batal</x-ui.button>
+                <x-ui.button variant="destructive" wire:click="delete">Ya, Hapus</x-ui.button>
             </div>
         </div>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Edit Pemasukan -->
-    <flux:modal name="edit-income" wire:model="editModalOpen" class="md:w-96">
+    <x-ui.modal name="edit-income" wire:model="editModalOpen" class="md:w-96">
         <form wire:submit="update" class="space-y-6">
             <div>
-                <flux:heading size="lg">Edit Pemasukan</flux:heading>
-                <flux:subheading>Perbarui data catatan pemasukan.</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Edit Pemasukan</h1>
+                <p class="text-sm text-muted-foreground">Perbarui data catatan pemasukan.</p>
             </div>
 
-            <flux:field>
-                <flux:label>Nominal (Rp)</flux:label>
-                <flux:input type="number" wire:model="amount" />
-                <flux:error name="amount" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Nominal (Rp)</x-ui.label>
+                <x-ui.input type="number" wire:model="amount" />
+                @error("amount") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Kategori</flux:label>
-                <flux:select wire:model="category_id">
+            <div class="space-y-2">
+                <x-ui.label>Kategori</x-ui.label>
+                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model="category_id">
                     <option value="">Pilih Kategori...</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                     @endforeach
-                </flux:select>
-                <flux:error name="category_id" />
-            </flux:field>
+                </select>
+                @error("category_id") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Keterangan</flux:label>
-                <flux:input type="text" wire:model="description" />
-                <flux:error name="description" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Keterangan</x-ui.label>
+                <x-ui.input type="text" wire:model="description" />
+                @error("description") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Tanggal</flux:label>
-                <flux:input type="date" wire:model="transaction_date" />
-                <flux:error name="transaction_date" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Tanggal</x-ui.label>
+                <x-ui.input type="date" wire:model="transaction_date" />
+                @error("transaction_date") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('editModalOpen', false)">Batal</flux:button>
-                <flux:button type="submit" variant="primary">Simpan Perubahan</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('editModalOpen', false)">Batal</x-ui.button>
+                <x-ui.button type="submit" variant="default">Simpan Perubahan</x-ui.button>
             </div>
         </form>
-    </flux:modal>
+    </x-ui.modal>
 </div>

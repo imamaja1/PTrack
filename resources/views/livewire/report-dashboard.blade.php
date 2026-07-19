@@ -33,34 +33,34 @@ new #[Layout('layouts.app')] class extends Component {
 
 <div>
     <x-slot name="header">
-        <flux:heading size="xl" level="1">Laporan Keuangan</flux:heading>
+        <h1 class="text-xl font-bold tracking-tight">Laporan Keuangan</h1>
     </x-slot>
 
     <div class="space-y-6" x-data>
         
         <div class="flex justify-between items-center mb-6">
-            <flux:heading size="lg">Distribusi Kategori</flux:heading>
+            <h1 class="text-xl font-bold tracking-tight">Distribusi Kategori</h1>
             <div class="w-48">
-                <flux:input type="month" wire:model.live="month" />
+                <x-ui.input type="month" wire:model.live="month" />
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Expense Chart -->
-            <flux:card>
-                <flux:heading size="md" class="text-center mb-4">Pengeluaran Bulan Ini</flux:heading>
+            <x-ui.card><x-ui.card-content class="pt-6">
+                <h1 class="text-xl font-bold tracking-tight">Pengeluaran Bulan Ini</h1>
                 <div class="w-full max-w-sm mx-auto aspect-square relative">
                     <canvas id="expensePieChart"></canvas>
                 </div>
-            </flux:card>
+            </x-ui.card-content></x-ui.card>
 
             <!-- Income Chart -->
-            <flux:card>
-                <flux:heading size="md" class="text-center mb-4">Pemasukan Bulan Ini</flux:heading>
+            <x-ui.card><x-ui.card-content class="pt-6">
+                <h1 class="text-xl font-bold tracking-tight">Pemasukan Bulan Ini</h1>
                 <div class="w-full max-w-sm mx-auto aspect-square relative">
                     <canvas id="incomePieChart"></canvas>
                 </div>
-            </flux:card>
+            </x-ui.card-content></x-ui.card>
         </div>
 
     @script

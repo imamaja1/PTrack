@@ -63,13 +63,14 @@ new class extends Component {
         $incomeData = [];
         $expenseData = [];
 
-        if ($this->filterType === 'year') {
-            $startOfYear = Carbon::createFromDate($this->selectedYear, 1, 1)->startOfYear();
-            $endOfYear = $startOfYear->copy()->endOfYear();
+        try {
+            if ($this->filterType === 'year') {
+                $startOfYear = Carbon::createFromDate($this->selectedYear, 1, 1)->startOfYear();
+                $endOfYear = $startOfYear->copy()->endOfYear();
 
-            $transactions = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
-                ->get();
+                $transactions = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$startOfYear->format('Y-m-d'), $endOfYear->format('Y-m-d')])
+                    ->get();
 
             $monthly = array_fill(1, 12, ['income' => 0, 'expense' => 0]);
             foreach ($transactions as $tx) {
@@ -166,6 +167,12 @@ new class extends Component {
                 $expenseData[] = $weekly[$i+1]['expense'];
                 $currentDate->addDay();
             }
+        }
+        } catch (\Exception $e) {
+            $this->selectedYear = Carbon::now()->format('Y');
+            $this->selectedMonth = Carbon::now()->format('Y-m');
+            $this->selectedWeek = Carbon::now()->format('o-W');
+            return;
         }
 
         $this->chartData = [
@@ -300,91 +307,91 @@ new class extends Component {
     @chart-data-updated.window="updateCharts()"
 >
     <!-- Filter Card -->
-    <flux:card class="mb-6">
+    <x-ui.card class="mb-6"><x-ui.card-content class="pt-6">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <flux:heading size="lg">Laporan Keuangan</flux:heading>
+            <h1 class="text-xl font-bold tracking-tight">Laporan Keuangan</h1>
             
             <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <!-- Filter Type -->
-                <flux:select wire:model.live="filterType" class="w-full sm:w-40 min-w-40">
+                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model.live="filterType" class="w-full sm:w-40 min-w-40">
                     <option value="year">Per Tahun</option>
                     <option value="month">Per Bulan</option>
                     <option value="week">Per Minggu</option>
-                </flux:select>
+                </select>
                 
                 <!-- Contextual Filter -->
                 @if($filterType === 'year')
-                    <flux:select wire:model.live="selectedYear" class="w-full sm:w-40 min-w-40">
+                    <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model.live="selectedYear" class="w-full sm:w-40 min-w-40">
                         @foreach($yearOptions as $val => $label)
                             <option value="{{ $val }}">{{ $label }}</option>
                         @endforeach
-                    </flux:select>
+                    </select>
                 @elseif($filterType === 'month')
-                    <flux:select wire:model.live="selectedMonth" class="w-full sm:w-56 min-w-56">
+                    <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model.live="selectedMonth" class="w-full sm:w-56 min-w-56">
                         @foreach($monthOptions as $val => $label)
                             <option value="{{ $val }}">{{ $label }}</option>
                         @endforeach
-                    </flux:select>
+                    </select>
                 @else
-                    <flux:select wire:model.live="selectedWeek" class="w-full sm:w-64 min-w-64">
+                    <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model.live="selectedWeek" class="w-full sm:w-64 min-w-64">
                         @foreach($weekOptions as $val => $label)
                             <option value="{{ $val }}">{{ $label }}</option>
                         @endforeach
-                    </flux:select>
+                    </select>
                 @endif
             </div>
         </div>
-    </flux:card>
+    </x-ui.card-content></x-ui.card>
 
     <!-- Insights KPI Cards -->
     @if(!empty($insights))
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <!-- Max Income -->
-        <flux:card class="bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30">
+        <x-ui.card class="bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30"><x-ui.card-content class="pt-6">
             <div class="text-sm text-green-600 dark:text-green-400 font-medium mb-1">Pemasukan Tertinggi</div>
             <div class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Rp {{ number_format($insights['maxIncome']['amount'], 0, ',', '.') }}</div>
             <div class="text-xs text-gray-500">{{ $insights['maxIncome']['label'] }}</div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
         
         <!-- Max Expense -->
-        <flux:card class="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
+        <x-ui.card class="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30"><x-ui.card-content class="pt-6">
             <div class="text-sm text-red-600 dark:text-red-400 font-medium mb-1">Pengeluaran Tertinggi</div>
             <div class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Rp {{ number_format($insights['maxExpense']['amount'], 0, ',', '.') }}</div>
             <div class="text-xs text-gray-500">{{ $insights['maxExpense']['label'] }}</div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
 
         <!-- Min Income -->
-        <flux:card class="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30">
+        <x-ui.card class="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30"><x-ui.card-content class="pt-6">
             <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium mb-1">Pemasukan Terendah</div>
             <div class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Rp {{ number_format($insights['minIncome']['amount'], 0, ',', '.') }}</div>
             <div class="text-xs text-gray-500">{{ $insights['minIncome']['label'] }}</div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
 
         <!-- Min Expense -->
-        <flux:card class="bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30">
+        <x-ui.card class="bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30"><x-ui.card-content class="pt-6">
             <div class="text-sm text-rose-600 dark:text-rose-400 font-medium mb-1">Pengeluaran Terendah</div>
             <div class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Rp {{ number_format($insights['minExpense']['amount'], 0, ',', '.') }}</div>
             <div class="text-xs text-gray-500">{{ $insights['minExpense']['label'] }}</div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
     </div>
     @endif
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Income Chart -->
-        <flux:card>
-            <flux:heading size="md" class="mb-4">Grafik Pemasukan</flux:heading>
+        <x-ui.card><x-ui.card-content class="pt-6">
+            <h1 class="text-xl font-bold tracking-tight">Grafik Pemasukan</h1>
             <div class="relative h-72 w-full" wire:ignore>
                 <canvas id="incomeChart"></canvas>
             </div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
         
         <!-- Expense Chart -->
-        <flux:card>
-            <flux:heading size="md" class="mb-4">Grafik Pengeluaran</flux:heading>
+        <x-ui.card><x-ui.card-content class="pt-6">
+            <h1 class="text-xl font-bold tracking-tight">Grafik Pengeluaran</h1>
             <div class="relative h-72 w-full" wire:ignore>
                 <canvas id="expenseChart"></canvas>
             </div>
-        </flux:card>
+        </x-ui.card-content></x-ui.card>
     </div>
 </div>

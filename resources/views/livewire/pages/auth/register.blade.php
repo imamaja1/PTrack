@@ -62,9 +62,9 @@ new #[Layout('layouts.guest')] class extends Component
 
     {{-- Register Form --}}
     <form wire:submit="register" class="space-y-4">
-        <flux:field>
-            <flux:label>Nama Lengkap</flux:label>
-            <flux:input
+        <div class="space-y-2">
+            <x-ui.label>Nama Lengkap</x-ui.label>
+            <x-ui.input
                 wire:model="name"
                 id="name"
                 type="text"
@@ -73,12 +73,12 @@ new #[Layout('layouts.guest')] class extends Component
                 autofocus
                 autocomplete="name"
             />
-            <flux:error name="name" />
-        </flux:field>
+            @error("name") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Alamat Email</flux:label>
-            <flux:input
+        <div class="space-y-2">
+            <x-ui.label>Alamat Email</x-ui.label>
+            <x-ui.input
                 wire:model="email"
                 id="email"
                 type="email"
@@ -86,12 +86,12 @@ new #[Layout('layouts.guest')] class extends Component
                 required
                 autocomplete="username"
             />
-            <flux:error name="email" />
-        </flux:field>
+            @error("email") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Password</flux:label>
-            <flux:input
+        <div class="space-y-2">
+            <x-ui.label>Password</x-ui.label>
+            <x-ui.input
                 wire:model="password"
                 id="password"
                 type="password"
@@ -99,12 +99,12 @@ new #[Layout('layouts.guest')] class extends Component
                 required
                 autocomplete="new-password"
             />
-            <flux:error name="password" />
-        </flux:field>
+            @error("password") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Konfirmasi Password</flux:label>
-            <flux:input
+        <div class="space-y-2">
+            <x-ui.label>Konfirmasi Password</x-ui.label>
+            <x-ui.input
                 wire:model="password_confirmation"
                 id="password_confirmation"
                 type="password"
@@ -112,12 +112,12 @@ new #[Layout('layouts.guest')] class extends Component
                 required
                 autocomplete="new-password"
             />
-            <flux:error name="password_confirmation" />
-        </flux:field>
+            @error("password_confirmation") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
-        <flux:button type="submit" variant="primary" class="w-full mt-2">
+        <x-ui.button type="submit" variant="default" class="w-full mt-2">
             Buat Akun
-        </flux:button>
+        </x-ui.button>
     </form>
 
     <p class="text-center text-sm text-gray-500 mt-6">

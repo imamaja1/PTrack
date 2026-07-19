@@ -3,7 +3,6 @@
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Models\User;
-use Flux\Flux;
 
 new class extends Component {
     use WithPagination;
@@ -30,7 +29,7 @@ new class extends Component {
 
         // Prevent deleting oneself
         if (auth()->id() == $id) {
-            Flux::toast('Anda tidak dapat menghapus akun Anda sendiri.', variant: 'danger');
+            session()->flash('status', 'Anda tidak dapat menghapus akun Anda sendiri.', variant: 'danger');
             $this->modalOpen = false;
             return;
         }
@@ -38,7 +37,7 @@ new class extends Component {
         $user = User::find($id);
         if ($user) {
             $user->delete();
-            Flux::toast('Pengguna berhasil dihapus.');
+            session()->flash('status', 'Pengguna berhasil dihapus.');
         }
 
         $this->modalOpen = false;
@@ -69,7 +68,7 @@ new class extends Component {
         if ($user) {
             // Prevent removing own admin role
             if (auth()->id() == $user->id && $this->editRole !== 'admin') {
-                Flux::toast('Anda tidak dapat mengubah peran (role) Anda sendiri.', variant: 'danger');
+                session()->flash('status', 'Anda tidak dapat mengubah peran (role) Anda sendiri.', variant: 'danger');
                 return;
             }
 
@@ -78,7 +77,7 @@ new class extends Component {
             $user->role = $this->editRole;
             $user->save();
 
-            Flux::toast('Data pengguna berhasil diperbarui.');
+            session()->flash('status', 'Data pengguna berhasil diperbarui.');
             $this->editModalOpen = false;
         }
     }
@@ -91,113 +90,113 @@ new class extends Component {
     }
 }; ?>
 
-<flux:card>
-    <flux:heading size="lg" class="mb-6">Daftar Pengguna</flux:heading>
+<x-ui.card><x-ui.card-content class="pt-6">
+    <h1 class="text-xl font-bold tracking-tight">Daftar Pengguna</h1>
     
-    <flux:table>
-        <flux:table.columns>
-            <flux:table.column>ID</flux:table.column>
-            <flux:table.column>Nama</flux:table.column>
-            <flux:table.column>Email</flux:table.column>
-            <flux:table.column>Role</flux:table.column>
-            <flux:table.column>Aksi</flux:table.column>
-        </flux:table.columns>
+    <x-ui.table>
+        <x-ui.table-header><x-ui.table-row>
+            <x-ui.table-head>ID</x-ui.table-head>
+            <x-ui.table-head>Nama</x-ui.table-head>
+            <x-ui.table-head>Email</x-ui.table-head>
+            <x-ui.table-head>Role</x-ui.table-head>
+            <x-ui.table-head>Aksi</x-ui.table-head>
+        </x-ui.table-row></x-ui.table-header>
 
-        <flux:table.rows>
+        <x-ui.table-body>
             @forelse ($users as $user)
-                <flux:table.row>
-                    <flux:table.cell>{{ $user->id }}</flux:table.cell>
-                    <flux:table.cell>
+                <x-ui.table-row>
+                    <x-ui.table-cell>{{ $user->id }}</x-ui.table-cell>
+                    <x-ui.table-cell>
                         <span class="font-medium text-zinc-900 dark:text-white">{{ $user->name }}</span>
-                    </flux:table.cell>
-                    <flux:table.cell>{{ $user->email }}</flux:table.cell>
-                    <flux:table.cell>
+                    </x-ui.table-cell>
+                    <x-ui.table-cell>{{ $user->email }}</x-ui.table-cell>
+                    <x-ui.table-cell>
                         @if($user->role === 'admin')
-                            <flux:badge class="bg-indigo-500 text-white border-0">Admin</flux:badge>
+                            <x-ui.badge class="bg-indigo-500 text-white border-0">Admin</x-ui.badge>
                         @else
-                            <flux:badge class="bg-blue-500 text-white border-0">User</flux:badge>
+                            <x-ui.badge class="bg-blue-500 text-white border-0">User</x-ui.badge>
                         @endif
-                    </flux:table.cell>
-                    <flux:table.cell>
+                    </x-ui.table-cell>
+                    <x-ui.table-cell>
                         <div class="flex gap-2">
-                            <flux:button variant="subtle" size="sm" wire:click="editUser({{ $user->id }})" icon="pencil">
+                            <x-ui.button variant="subtle" size="sm" wire:click="editUser({{ $user->id }})" icon="pencil">
                                 Edit
-                            </flux:button>
+                            </x-ui.button>
 
                             @if(auth()->id() !== $user->id)
-                                <flux:button variant="danger" size="sm" wire:click="confirmDelete({{ $user->id }})" icon="trash">
+                                <x-ui.button variant="destructive" size="sm" wire:click="confirmDelete({{ $user->id }})" icon="trash">
                                     Hapus
-                                </flux:button>
+                                </x-ui.button>
                             @else
                                 <span class="text-zinc-400 text-xs italic self-center">Diri Anda</span>
                             @endif
                         </div>
-                    </flux:table.cell>
-                </flux:table.row>
+                    </x-ui.table-cell>
+                </x-ui.table-row>
             @empty
-                <flux:table.row>
-                    <flux:table.cell colspan="5" class="text-center py-8">
+                <x-ui.table-row>
+                    <x-ui.table-cell colspan="5" class="text-center py-8">
                         Tidak ada pengguna ditemukan.
-                    </flux:table.cell>
-                </flux:table.row>
+                    </x-ui.table-cell>
+                </x-ui.table-row>
             @endforelse
-        </flux:table.rows>
-    </flux:table>
+        </x-ui.table-body>
+    </x-ui.table>
     
     <div class="mt-4">
         {{ $users->links() }}
     </div>
 
     <!-- Modal Konfirmasi Hapus -->
-    <flux:modal name="delete-user" wire:model="modalOpen" class="md:w-[400px]">
+    <x-ui.modal name="delete-user" wire:model="modalOpen" class="md:w-[400px]">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Konfirmasi Hapus</flux:heading>
-                <flux:subheading>Apakah Anda yakin ingin menghapus pengguna ini? Semua data terkait (transaksi, dll) mungkin akan terhapus.</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Konfirmasi Hapus</h1>
+                <p class="text-sm text-muted-foreground">Apakah Anda yakin ingin menghapus pengguna ini? Semua data terkait (transaksi, dll) mungkin akan terhapus.</p>
             </div>
             
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('modalOpen', false)">Batal</flux:button>
-                <flux:button variant="danger" wire:click="delete">Ya, Hapus</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('modalOpen', false)">Batal</x-ui.button>
+                <x-ui.button variant="destructive" wire:click="delete">Ya, Hapus</x-ui.button>
             </div>
         </div>
-    </flux:modal>
+    </x-ui.modal>
 
     <!-- Modal Edit User -->
-    <flux:modal name="edit-user" wire:model="editModalOpen" class="md:w-[500px]">
+    <x-ui.modal name="edit-user" wire:model="editModalOpen" class="md:w-[500px]">
         <form wire:submit="updateUser" class="space-y-6">
             <div>
-                <flux:heading size="lg">Edit Pengguna</flux:heading>
-                <flux:subheading>Perbarui informasi akun pengguna.</flux:subheading>
+                <h1 class="text-xl font-bold tracking-tight">Edit Pengguna</h1>
+                <p class="text-sm text-muted-foreground">Perbarui informasi akun pengguna.</p>
             </div>
             
-            <flux:field>
-                <flux:label>Nama Lengkap</flux:label>
-                <flux:input wire:model="editName" />
-                <flux:error name="editName" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Nama Lengkap</x-ui.label>
+                <x-ui.input wire:model="editName" />
+                @error("editName") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Alamat Email</flux:label>
-                <flux:input type="email" wire:model="editEmail" />
-                <flux:error name="editEmail" />
-            </flux:field>
+            <div class="space-y-2">
+                <x-ui.label>Alamat Email</x-ui.label>
+                <x-ui.input type="email" wire:model="editEmail" />
+                @error("editEmail") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
-            <flux:field>
-                <flux:label>Peran (Role)</flux:label>
-                <flux:select wire:model="editRole">
+            <div class="space-y-2">
+                <x-ui.label>Peran (Role)</x-ui.label>
+                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" wire:model="editRole">
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
-                </flux:select>
-                <flux:error name="editRole" />
-            </flux:field>
+                </select>
+                @error("editRole") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+            </div>
 
             <div class="flex gap-2">
-                <flux:spacer />
-                <flux:button wire:click="$set('editModalOpen', false)">Batal</flux:button>
-                <flux:button type="submit" variant="primary">Simpan Perubahan</flux:button>
+                <div class="flex-1"></div>
+                <x-ui.button wire:click="$set('editModalOpen', false)">Batal</x-ui.button>
+                <x-ui.button type="submit" variant="default">Simpan Perubahan</x-ui.button>
             </div>
         </form>
-    </flux:modal>
-</flux:card>
+    </x-ui.modal>
+</x-ui.card-content></x-ui.card>

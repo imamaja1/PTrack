@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <flux:heading size="xl" level="1">{{ __('Dashboard') }}</flux:heading>
+        <h1 class="text-xl font-bold tracking-tight">{{ __('Dashboard') }}</h1>
     </x-slot>
 
     <div class="space-y-6">

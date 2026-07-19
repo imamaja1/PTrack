@@ -16,4 +16,6 @@ new class extends Component
     }
 }; ?>
 
-<flux:menu.item icon="arrow-right-start-on-rectangle" wire:click="logout">Keluar</flux:menu.item>
+<button wire:click="logout" class="w-full text-left relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+    Keluar
+</button>

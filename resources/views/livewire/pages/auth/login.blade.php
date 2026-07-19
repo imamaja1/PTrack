@@ -61,9 +61,9 @@ new #[Layout('layouts.guest')] class extends Component
 
     {{-- Login Form --}}
     <form wire:submit="login" class="space-y-4">
-        <flux:field>
-            <flux:label>Alamat Email</flux:label>
-            <flux:input
+        <div class="space-y-2">
+            <x-ui.label>Alamat Email</x-ui.label>
+            <x-ui.input
                 wire:model="form.email"
                 id="email"
                 type="email"
@@ -72,12 +72,12 @@ new #[Layout('layouts.guest')] class extends Component
                 autofocus
                 autocomplete="username"
             />
-            <flux:error name="form.email" />
-        </flux:field>
+            @error("form.email") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
-        <flux:field>
+        <div class="space-y-2">
             <div class="flex items-center justify-between">
-                <flux:label>Password</flux:label>
+                <x-ui.label>Password</x-ui.label>
                 @if (Route::has('password.request'))
                     <a href="{{ route('password.request') }}" wire:navigate
                        class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
@@ -85,7 +85,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </a>
                 @endif
             </div>
-            <flux:input
+            <x-ui.input
                 wire:model="form.password"
                 id="password"
                 type="password"
@@ -93,17 +93,17 @@ new #[Layout('layouts.guest')] class extends Component
                 required
                 autocomplete="current-password"
             />
-            <flux:error name="form.password" />
-        </flux:field>
+            @error("form.password") <span class="text-sm font-medium text-destructive">{{ $message }}</span> @enderror
+        </div>
 
         <div class="flex items-center gap-2 mt-1">
             <flux:checkbox wire:model="form.remember" id="remember" />
             <label for="remember" class="text-sm text-gray-600 cursor-pointer">Ingat saya</label>
         </div>
 
-        <flux:button type="submit" variant="primary" class="w-full mt-2">
+        <x-ui.button type="submit" variant="default" class="w-full mt-2">
             Masuk
-        </flux:button>
+        </x-ui.button>
     </form>
 
     <p class="text-center text-sm text-gray-500 mt-6">

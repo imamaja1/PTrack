@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->name('user
     Livewire\Volt\Volt::route('pinjaman', 'loan-manager')->name('loan');
     Livewire\Volt\Volt::route('hutang', 'debt-manager')->name('debt');
     Livewire\Volt\Volt::route('laporan', 'report-dashboard')->name('report');
-    Livewire\Volt\Volt::route('kategori', 'category-manager')->name('category');
+    Livewire\Volt\Volt::route('kategori/{type?}', 'category-manager')->name('category');
 });
 
 Route::middleware('auth')->group(function () {
