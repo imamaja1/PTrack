@@ -2,38 +2,33 @@
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
-use Carbon\Carbon;
+use App\Services\TransactionService;
 
 new class extends Component {
     public $currentBalance = 0;
     public $monthlyIncome = 0;
     public $monthlyExpense = 0;
 
-    public function mount()
+    protected TransactionService $transactionService;
+
+    public function boot(TransactionService $transactionService): void
+    {
+        $this->transactionService = $transactionService;
+    }
+
+    public function mount(): void
     {
         $this->loadSummary();
     }
 
     #[On('transaction-updated')]
-    public function loadSummary()
+    public function loadSummary(): void
     {
-        $userId = auth()->id();
-        $now = Carbon::now();
+        $summary = $this->transactionService->getSummary(auth()->id());
 
-        $this->currentBalance = \App\Models\Transaction::where('user_id', $userId)->where('type', 'income')->sum('amount') 
-            - \App\Models\Transaction::where('user_id', $userId)->where('type', 'expense')->sum('amount');
-
-        $this->monthlyIncome = \App\Models\Transaction::where('user_id', $userId)
-            ->whereMonth('transaction_date', $now->month)
-            ->whereYear('transaction_date', $now->year)
-            ->where('type', 'income')
-            ->sum('amount');
-
-        $this->monthlyExpense = \App\Models\Transaction::where('user_id', $userId)
-            ->whereMonth('transaction_date', $now->month)
-            ->whereYear('transaction_date', $now->year)
-            ->where('type', 'expense')
-            ->sum('amount');
+        $this->currentBalance = $summary['currentBalance'];
+        $this->monthlyIncome  = $summary['monthlyIncome'];
+        $this->monthlyExpense = $summary['monthlyExpense'];
     }
 }; ?>
 

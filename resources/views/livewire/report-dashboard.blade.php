@@ -63,7 +63,6 @@ new #[Layout('layouts.app')] class extends Component {
             </flux:card>
         </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" data-navigate-once></script>
     @script
     <script>
         let expenseChart = null;

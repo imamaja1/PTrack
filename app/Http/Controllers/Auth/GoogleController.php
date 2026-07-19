@@ -23,25 +23,37 @@ class GoogleController extends Controller
     public function callback()
     {
         try {
+            $caPath = storage_path('cacert.pem');
+            $client = new \GuzzleHttp\Client([
+                'verify' => file_exists($caPath) ? $caPath : true,
+            ]);
+
             $googleUser = Socialite::driver('google')
-                ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+                ->setHttpClient($client)
                 ->user();
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Google Login Error: ' . $e->getMessage());
             return redirect()->route('login')->withErrors(['google' => 'Login dengan Google gagal: ' . $e->getMessage()]);
         }
 
-        // Find or create user
-        $user = User::updateOrCreate(
+        $user = User::firstOrCreate(
             ['email' => $googleUser->getEmail()],
             [
                 'name'              => $googleUser->getName(),
                 'google_id'         => $googleUser->getId(),
                 'email_verified_at' => now(),
-                'password'          => null, // Google users have no password
+                'password'          => null,
                 'role'              => 'user',
             ]
         );
+
+        if (! $user->google_id) {
+            $user->update([
+                'google_id'         => $googleUser->getId(),
+                'name'              => $googleUser->getName(),
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ]);
+        }
 
         Auth::login($user, remember: true);
 

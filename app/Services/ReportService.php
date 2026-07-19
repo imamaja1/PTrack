@@ -71,6 +71,7 @@ class ReportService
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->select('category_id', DB::raw('SUM(amount) as total'))
             ->groupBy('category_id')
+            ->with('category')
             ->get();
 
         $labels  = [];
@@ -78,7 +79,7 @@ class ReportService
         $colors  = [];
 
         foreach ($transactions as $tx) {
-            $cat      = Category::find($tx->category_id);
+            $cat      = $tx->category;
             $labels[] = $cat ? $cat->name : 'Lain-lain';
             $data[]   = $tx->total;
             $colors[] = ($cat && $cat->color) ? $this->tailwindToHex($cat->color) : '#9ca3af';

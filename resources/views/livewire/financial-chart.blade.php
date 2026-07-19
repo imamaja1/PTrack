@@ -61,7 +61,6 @@ new class extends Component {
         $userId = auth()->id();
         $labels = [];
         $incomeData = [];
-        $incomeData = [];
         $expenseData = [];
 
         if ($this->filterType === 'year') {
@@ -296,16 +295,7 @@ new class extends Component {
             }
         }
     }"
-    x-init="
-        if (typeof Chart === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-            script.onload = () => initCharts();
-            document.head.appendChild(script);
-        } else {
-            initCharts();
-        }
-    "
+    x-init="initCharts()"
     @transaction-updated.window="$wire.loadChartData()"
     @chart-data-updated.window="updateCharts()"
 >

@@ -125,4 +125,37 @@ class TransactionService
 
         return $transaction->delete();
     }
+
+    /**
+     * Get financial summary for a user.
+     */
+    public function getSummary(int $userId): array
+    {
+        $now = \Carbon\Carbon::now();
+
+        $currentBalance = Transaction::where('user_id', $userId)
+            ->where('type', 'income')
+            ->sum('amount')
+            - Transaction::where('user_id', $userId)
+                ->where('type', 'expense')
+                ->sum('amount');
+
+        $monthlyIncome = Transaction::where('user_id', $userId)
+            ->whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        $monthlyExpense = Transaction::where('user_id', $userId)
+            ->whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year)
+            ->where('type', 'expense')
+            ->sum('amount');
+
+        return [
+            'currentBalance' => $currentBalance,
+            'monthlyIncome'  => $monthlyIncome,
+            'monthlyExpense' => $monthlyExpense,
+        ];
+    }
 }

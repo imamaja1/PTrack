@@ -5,6 +5,7 @@ use Livewire\WithPagination;
 use App\Services\TransactionService;
 use App\Services\CategoryService;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Flux\Flux;
 
@@ -74,7 +75,7 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $this->validate([
             'amount'           => 'required|numeric|min:1',
-            'category_id'      => 'required|exists:categories,id',
+'category_id' => ['required', Rule::exists('categories', 'id')->where('user_id', auth()->id())],
             'description'      => 'nullable|string|max:255',
             'transaction_date' => 'required|date',
         ]);
@@ -108,7 +109,7 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $this->validate([
             'amount'           => 'required|numeric|min:1',
-            'category_id'      => 'required|exists:categories,id',
+'category_id' => ['required', Rule::exists('categories', 'id')->where('user_id', auth()->id())],
             'description'      => 'nullable|string|max:255',
             'transaction_date' => 'required|date',
         ]);
