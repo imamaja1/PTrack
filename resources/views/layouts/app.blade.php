@@ -15,6 +15,45 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @fluxAppearance
+
+        {{--
+            Register fluxModal Alpine component inline in <head>.
+            This is necessary when Cloudflare Rocket Loader or any other optimizer
+            loads external scripts async — breaking the normal alpine:init order.
+            This inline script always runs first, guaranteeing fluxModal is available.
+            Source: extracted from flux-lite.min.js (vendor/livewire/flux/dist/)
+        --}}
+        <script data-cfasync="false">
+            document.addEventListener('alpine:init', () => {
+                if (!window.Alpine) return;
+
+                // Register flux:modal Alpine component
+                window.Alpine.data('fluxModal', (name, scope) => ({
+                    handleShow(event) {
+                        if (event.detail.name === name) {
+                            if (scope && event.detail.scope === scope) {
+                                this.$el.showModal();
+                            } else if (!event.detail.scope) {
+                                this.$el.showModal();
+                            }
+                        }
+                    },
+                    handleClose(event) {
+                        if (event.detail.name) {
+                            if (event.detail.name === name) {
+                                if (scope && event.detail.scope === scope) {
+                                    this.$el.close();
+                                } else if (!event.detail.scope) {
+                                    this.$el.close();
+                                }
+                            }
+                        } else {
+                            this.$el.close();
+                        }
+                    }
+                }));
+            });
+        </script>
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-900">
         <flux:sidebar sticky stashable class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
