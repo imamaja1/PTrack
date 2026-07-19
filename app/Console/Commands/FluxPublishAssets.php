@@ -19,12 +19,14 @@ class FluxPublishAssets extends Command
             mkdir($destination, 0755, true);
         }
 
-        // Copy the correct flux JS files
+        // Copy the correct flux JS files (flux-lite.min.js has all Alpine components including fluxModal)
         copy("{$fluxDist}/flux-lite.min.js", "{$destination}/flux.js");
         copy("{$fluxDist}/flux-lite.min.js", "{$destination}/flux.min.js");
+        copy("{$fluxDist}/flux.css", "{$destination}/flux.css");
 
         $this->info('✅ Flux assets published to public/flux/');
         $this->line('   - public/flux/flux.js');
         $this->line('   - public/flux/flux.min.js');
+        $this->line('   - public/flux/flux.css');
     }
 }

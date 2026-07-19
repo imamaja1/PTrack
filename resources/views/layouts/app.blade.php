@@ -102,8 +102,6 @@
 
         <flux:toast position="top right" />
 
-        @fluxScripts
-        
         <!-- Global Loading Screen for Navigation Transitions -->
         <div id="global-loader" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-white/70 dark:bg-zinc-900/70 backdrop-blur-sm transition-opacity duration-300 opacity-0">
             <div class="flex flex-col items-center gap-3">
@@ -132,5 +130,9 @@
                 }
             });
         </script>
+
+        {{-- @fluxScripts is the LAST thing before </body> per Flux official docs --}}
+        {{-- It loads flux.js which registers Alpine components (fluxModal, etc.) --}}
+        @fluxScripts
     </body>
 </html>
