@@ -12,6 +12,9 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    <!-- Alpine.js for interactive components like mobile menu -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         * { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }

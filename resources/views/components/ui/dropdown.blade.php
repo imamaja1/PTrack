@@ -1,4 +1,4 @@
-@props(['align' => 'right', 'width' => '48'])
+@props(['align' => 'right', 'width' => '48', 'strategy' => 'fixed'])
 
 @php
 $alignmentClasses = match ($align) {
@@ -8,6 +8,15 @@ $alignmentClasses = match ($align) {
     default => 'origin-top-right',
 };
 
+if ($strategy === 'absolute') {
+    $alignmentClasses .= match ($align) {
+        'left' => ' left-0 top-full mt-1',
+        'top' => ' left-0 bottom-full mb-1',
+        'right' => ' right-0 top-full mt-1',
+        default => ' right-0 top-full mt-1',
+    };
+}
+
 $width = match ($width) {
     '48' => 'w-48',
     '56' => 'w-56',
@@ -15,10 +24,13 @@ $width = match ($width) {
 };
 @endphp
 
-<div class="relative inline-block text-left" 
+<div class="relative {{ $strategy === 'absolute' ? 'block w-full' : 'inline-block' }} text-left" 
      x-data="{ 
         open: false,
+        strategy: '{{ $strategy }}',
         setPosition() {
+            if (this.strategy === 'absolute') return;
+            
             let trigger = this.$refs.trigger.getBoundingClientRect();
             let align = '{{ $align }}';
             
@@ -56,7 +68,7 @@ $width = match ($width) {
             x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="z-50 {{ $width }} rounded-md shadow-md {{ $alignmentClasses }}"
+            class="z-50 {{ $width }} rounded-md shadow-md {{ $alignmentClasses }} {{ $strategy === 'absolute' ? 'absolute' : '' }}"
             style="display: none;"
             @click="open = false">
         <div class="rounded-md border bg-popover text-popover-foreground shadow-md p-1">

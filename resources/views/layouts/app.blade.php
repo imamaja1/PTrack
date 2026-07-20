@@ -116,7 +116,7 @@
         </nav>
 
         <div class="border-t p-4">
-            <x-ui.dropdown align="top" width="56">
+            <x-ui.dropdown align="top" width="56" strategy="absolute">
                 <x-slot name="trigger">
                     <button class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted transition-colors">
                         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
