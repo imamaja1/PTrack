@@ -7,6 +7,21 @@ use Livewire\Volt\Component;
 new class extends Component
 {
     public string $password = '';
+    public bool $confirmingUserDeletion = false;
+
+    public function confirmUserDeletion(): void
+    {
+        $this->confirmingUserDeletion = true;
+        $this->resetErrorBag();
+        $this->password = '';
+    }
+
+    public function closeModal(): void
+    {
+        $this->confirmingUserDeletion = false;
+        $this->resetErrorBag();
+        $this->password = '';
+    }
 
     /**
      * Delete the currently authenticated user.
@@ -24,36 +39,28 @@ new class extends Component
 }; ?>
 
 <section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
+    <p class="text-sm text-slate-500 mb-6">
+        Begitu akun Anda dihapus, semua data dan riwayat pencatatan keuangan Anda akan terhapus secara permanen. Pastikan Anda telah mengunduh data yang Anda butuhkan sebelum menghapus akun.
+    </p>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
-        </p>
-    </header>
+    <x-ui.button variant="destructive" wire:click="confirmUserDeletion">
+        {{ __('Delete Account') }}
+    </x-ui.button>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
-
-    <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
-        <form wire:submit="deleteUser" class="p-6">
-
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
+    <x-ui.modal wire:model="confirmingUserDeletion">
+        <form wire:submit="deleteUser">
+            <h2 class="text-lg font-medium text-slate-900">
+                Apakah Anda yakin ingin menghapus akun?
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+            <p class="mt-2 text-sm text-slate-500">
+                Begitu akun Anda dihapus, semua data dan riwayat pencatatan keuangan Anda akan terhapus secara permanen. Masukkan kata sandi Anda untuk mengonfirmasi bahwa Anda ingin menghapus akun Anda secara permanen.
             </p>
 
             <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
+                <x-ui.label for="password" value="{{ __('Password') }}" class="sr-only" />
 
-                <x-text-input
+                <x-ui.input
                     wire:model="password"
                     id="password"
                     name="password"
@@ -65,15 +72,15 @@ new class extends Component
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
+            <div class="mt-8 flex justify-end gap-3">
+                <x-ui.button variant="outline" type="button" wire:click="closeModal">
+                    Batal
+                </x-ui.button>
 
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
+                <x-ui.button variant="destructive" type="submit">
+                    Hapus Akun Permanen
+                </x-ui.button>
             </div>
         </form>
-    </x-modal>
+    </x-ui.modal>
 </section>
